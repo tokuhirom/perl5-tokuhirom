@@ -4,7 +4,6 @@ use warnings;
 use 5.010001;
 our $VERSION = '0.01';
 use Exporter;
-use File::stat;
 use Data::Printer;
 use Time::Piece;
 use indirect;
@@ -26,8 +25,6 @@ sub import {
     bareword::filehandles->import();
 
     no strict 'refs';
-    *{"$caller\::stat"}  = *{"File::stat::stat"};
-    *{"$caller\::lstat"} = *{"File::stat::lstat"};
     *{"$caller\::p"}     = *{"Data::Printer::p"};
 }
 
