@@ -3,14 +3,13 @@ use strict;
 use warnings;
 use 5.010001;
 our $VERSION = '0.01';
-use Exporter;
-use Data::Printer;
-use Time::Piece;
-use indirect;
-use IO::Handle;
 use mro ();
 use feature ();
+use indirect;
+use autovivification ();
 use bareword::filehandles ();
+
+use IO::Handle;
 
 sub import {
     my $caller = caller(0);
@@ -25,7 +24,13 @@ sub import {
     bareword::filehandles->import();
 
     no strict 'refs';
-    *{"$caller\::p"}     = *{"Data::Printer::p"};
+    *{"$caller\::p"} = sub (\[@$%&];%) { # lazy load
+        eval { require Data::Printer }
+          or die "Cannot load Data::Printer for using 'p' function: $@";
+        no warnings 'redefine';
+        *{"$caller\::p"} = \&Data::Printer::p;
+        goto \&Data::Printer::p;
+    };
 }
 
 1;
